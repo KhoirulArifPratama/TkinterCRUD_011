@@ -57,8 +57,8 @@ def predict_fakultas(biologi, fisika, inggris):
         else:
             return 'Bahasa'
 
-class NilaiApp:
-    def _init_(self, root):
+class NilaiApp :
+    def __init__(self, root):
         self.root = root
         root.title('Input Nilai Siswa - SQLite')
         root.geometry('900x520')
@@ -223,4 +223,4 @@ if __name__ == '__main__':
     init_db()
     root = tk.Tk()
     app = NilaiApp(root)
-root.mainloop()
+    root.mainloop()
