@@ -10,15 +10,15 @@ def init_db():
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
     cur.execute('''
-        CREATE TABLE IF NOT EXISTS nilai_siswa(
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nama_siswa TEXT NOT NULL,
-                biologi REAL NOT NULL,
-                fisika REAL NOT NULL,
-                inggris REAL NOT NULL,
-                prediksi-fakultas TEXT NOT NULL
-              )
-''')
+        CREATE TABLE IF NOT EXISTS nilai_siswa (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nama_siswa TEXT NOT NULL,
+            biologi REAL NOT NULL,
+            fisika REAL NOT NULL,
+            inggris REAL NOT NULL,
+            prediksi_fakultas TEXT NOT NULL
+        )
+    ''')
     conn.commit()
     conn.close()
 
@@ -26,20 +26,17 @@ def insert_nilai(nama, bio, fis, ing, prediksi):
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
     cur.execute('''
-        INSERT INTO nilai_siswa(nama_siswa,
-        biologi, fisika, inggris, prediksi_fakultas)
+        INSERT INTO nilai_siswa (nama_siswa, biologi, fisika, inggris, prediksi_fakultas)
         VALUES (?, ?, ?, ?, ?)
-''', (nama, bio, fis , ing , prediksi))
+    ''', (nama, bio, fis, ing, prediksi))
     conn.commit()
-    conn.execute()
-
+    conn.close()
 
 def fetch_all():
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
-    cur.execute('SELECT id, nama_siswa,biologi, fisika, inggris, prediksi_fakultas FROM nilai_siswa ORDER BY id DESC')
+    cur.execute('SELECT id, nama_siswa, biologi, fisika, inggris, prediksi_fakultas FROM nilai_siswa ORDER BY id DESC')
     rows = cur.fetchall()
-    conn.commit()
     conn.close()
     return rows
 
@@ -51,6 +48,7 @@ def predict_fakultas(biologi, fisika, inggris):
     elif inggris > biologi and inggris > fisika:
         return 'Bahasa'
     else:
+        #tie -> prority
         max_val = max(biologi, fisika, inggris)
         if biologi == max_val:
             return 'Kedokteran'
@@ -58,52 +56,48 @@ def predict_fakultas(biologi, fisika, inggris):
             return 'Teknik'
         else:
             return 'Bahasa'
-        
-        class Nilaiapp:
-            def __init__(self, root):
-                self.root = root
-                root.title('Input Nilai Siswa - SQLite')
-                root.geometry('900x520')
-                root.minsize(800, 400)
 
-                style = ttk.Style()
-                try:
-                    style.theme_use('clam')
-                except Exception:
-                    pass
-                style.configure('TLabel', font=('Segoe UI', 10))
-                style.configure('TButton', font=('Segoe UI', 10), padding=6)
-                style.configure('Header.TLabel', font=('Segoe UI', 12, 'bold'))
-                style.configure('Treeview.Heading', font=('Segoe UI', 10, 'bold'))
-                style.configure('Treeview', font=('Segoe UI', 10))
+class NilaiApp:
+    def _init_(self, root):
+        self.root = root
+        root.title('Input Nilai Siswa - SQLite')
+        root.geometry('900x520')
+        root.minsize(800, 400)
 
-                frm_left = ttk.LabelFrame(root, text='FormInput', padding=(12, 12))
-                frm_left.grid(row=0, column=0,
-                sticky='nws', padx=12, pady=12)
+        style = ttk.Style()
+        try:
+            style.theme_use('clam')
+        except Exception:
+            pass
+        style.configure('TLabel', font=('Segoe UI', 10))
+        style.configure('TButton', font=('Segoe UI', 10), padding=6)
+        style.configure('Header.TLabel', font=('Segoe UI', 12, 'bold'))
+        style.configure('Treeview.Heading', font=('Segoe UI', 10, 'bold'))
+        style.configure('Treeview', font=('Segoe UI', 10))
+       
+        frm_left = ttk.LabelFrame(root, text='Data Input', padding=(12, 12))
+        frm_left.grid(row=0, column=0, sticky='nws', padx=12, pady=12)
 
-                frm_left = ttk.LabelFrame(root, text='DataTersimpan', padding=(8,8))
-                frm_right.grid(row=0, column=1,
-                sticky='nsew', padx=12, pady=12)
+        frm_right = ttk.LabelFrame(root, text='Data Tersimpan', padding=(8, 8))
+        frm_right.grid(row=0, column=1, sticky='nsew', padx=12, pady=12)
 
-                root.grid_columnconfigure(1, weight=1)
-                root.grid_rowconfigure(0, weight=1)
+        root.grid_columnconfigure(1, weight=1)
+        root.grid_rowconfigure(0, weight=1)
 
-                ttk.Label(frm_left, text='Nama_Siswa:',
-                style='Header.TLabel').grid(row=0, column=0, sticky='w')
-                self.entry_nama = ttk.Entry(frm_left,
-                width=34)
-                self.entry_nama.grid(row=1, column=0, pady=6, sticky='w')
+        ttk.Label(frm_left, text='Nama Siswa:', style='Header.TLabel').grid(row=0, column=0, sticky='w')
+        self.entry_nama = ttk.Entry(frm_left, width=34)
+        self.entry_nama.grid(row=1, column=0, pady=6, sticky='w')
 
-                lbl_nilai = ttk.Label(frm_left, text='Nilai (0-100):', style='Header.TLabel')
+        lbl_nilai = ttk.Label(frm_left, text='Nilai(0-100):', style='Header.TLabel')
         lbl_nilai.grid(row=2, column=0, sticky='w', pady=(8, 0))
 
         inner = ttk.Frame(frm_left)
         inner.grid(row=3, column=0, sticky='w')
-        ttk.Label(inner, text='Biologi').grid(row=0, column=0, padx=(0,6))
+        ttk.Label(inner, text='Biologi:').grid(row=0, column=0, padx=(0,6))
         self.entry_bio = ttk.Entry(inner, width=8)
         self.entry_bio.grid(row=0, column=1, padx=(0,12))
 
-        ttk.Label(inner, text='Fisika').grid(row=0, column=2, padx=(0,6))
+        ttk.Label(inner, text='Fisika:').grid(row=0, column=2, padx=(0,6))
         self.entry_fis = ttk.Entry(inner, width=8)
         self.entry_fis.grid(row=0, column=3, padx=(0,12))
 
@@ -155,8 +149,8 @@ def predict_fakultas(biologi, fisika, inggris):
 
         self.load_table()
 
-        def validate_inputs(self, nama, bio_s, fis_s, ing_s):
-         if not nama.strip():
+    def validate_inputs(self, nama, bio_s, fis_s, ing_s):
+        if not nama.strip():
             messagebox.showwarning('Validasi', 'Nama siswa harus diisi.')
             return False
         try:
@@ -171,7 +165,7 @@ def predict_fakultas(biologi, fisika, inggris):
                 messagebox.showwarning('Validasi', 'Nilai harus berada di rentang 0 - 100.')
                 return False
         return True
-    
+
     def on_submit(self):
         nama = self.entry_nama.get()
         bio_s = self.entry_bio.get()
@@ -192,8 +186,8 @@ def predict_fakultas(biologi, fisika, inggris):
         self.clear_form()
         self.load_table()
 
-        def load_table(self):
-         for i in self.tree.get_children():
+    def load_table(self):
+        for i in self.tree.get_children():
             self.tree.delete(i)
         rows = fetch_all()
         for r in rows:
@@ -206,8 +200,8 @@ def predict_fakultas(biologi, fisika, inggris):
                 counts[r[5]] += 1
         self.summary.config(text=f'Total entri: {total}    Kedokteran: {counts["Kedokteran"]}    Teknik: {counts["Teknik"]}    Bahasa: {counts["Bahasa"]}')
 
-        def clear_form(self):
-         self.entry_nama.delete(0, tk.END)
+    def clear_form(self):
+        self.entry_nama.delete(0, tk.END)
         self.entry_bio.delete(0, tk.END)
         self.entry_fis.delete(0, tk.END)
         self.entry_ing.delete(0, tk.END)
@@ -225,14 +219,8 @@ def predict_fakultas(biologi, fisika, inggris):
         messagebox.showinfo('Export CSV', f'Data berhasil diekspor ke {filename}')
 
 
-        if __name__ == 'main':
-         init_db()
-         root = tk.Tk()
-         app = NilaiApp(root)
-         root.mainloop()
-
-
-
-                
-                
-
+if __name__ == '__main__':
+    init_db()
+    root = tk.Tk()
+    app = NilaiApp(root)
+root.mainloop()
